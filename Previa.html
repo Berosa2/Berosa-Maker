@@ -51,7 +51,7 @@
     let listaCupons = [];
 
     // carrega o arquivo de descontos automaticamente
-    fetch("Desconto.json")
+    fetch("Descontos.json")
       .then(r => r.json())
       .then(json => { listaCupons = json; })
       .catch(()=> console.warn("Não foi possível carregar Desconto.json"));
@@ -134,3 +134,4 @@
   </script>
 </body>
 </html>
+
