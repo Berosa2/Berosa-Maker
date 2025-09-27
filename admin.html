@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Berosa2 Maker - Painel Admin</title>
+  <style>
+    /* Base visual inspirado nos arquivos do projeto */
+    :root{
+      --bg-1: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      --accent: #1abc9c;
+      --accent-2: #16a085;
+      --card: rgba(255,255,255,0.06);
+      --glass: rgba(0,0,0,0.35);
+      --muted: rgba(255,255,255,0.8);
+      --danger: #ff4d4d;
+      --success: #4caf50;
+    }
+
+    html,body{height:100%;margin:0;font-family:"Segoe UI",Arial,sans-serif;background:var(--bg-1);color:#fff}
+
+    header{
+      display:flex;align-items:center;gap:16px;padding:18px 24px;background:var(--glass);backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,0.04);
+    }
+    header img{height:56px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,0.6)}
+    header h1{font-size:1.4rem;color:var(--accent);margin:0}
+
+    nav.topnav{margin-left:auto;display:flex;gap:10px}
+    .topnav a{background:linear-gradient(135deg,var(--accent),var(--accent-2));padding:8px 14px;border-radius:10px;color:#fff;text-decoration:none;font-weight:700}
+    .topnav a:hover{transform:scale(1.03)}
+
+    .container{padding:24px;display:grid;grid-template-columns:260px 1fr;gap:20px}
+
+    /* sidebar */
+    aside.sidebar{background:var(--card);padding:18px;border-radius:12px;height:calc(100vh - 120px);overflow:auto}
+    .sidebar h3{margin:0 0 12px 0;color:var(--muted)}
+    .menu{display:flex;flex-direction:column;gap:8px}
+    .menu button{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:10px;border-radius:8px;text-align:left;cursor:pointer}
+    .menu button.active{background:linear-gradient(135deg,var(--accent),var(--accent-2));font-weight:700}
+
+    /* main */
+    main.board{min-height:60vh}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:20px}
+    .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.45)}
+    .card h4{margin:0 0 8px 0}
+    .kpi{font-size:1.6rem;font-weight:800;color:var(--accent)}
+
+    /* table */
+    table{width:100%;border-collapse:collapse;background:transparent}
+    thead th{padding:10px;text-align:left;color:rgba(255,255,255,0.8);font-weight:700;border-bottom:1px solid rgba(255,255,255,0.04)}
+    tbody td{padding:12px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    .muted{color:rgba(255,255,255,0.7);font-size:0.95rem}
+
+    /* forms */
+    label{display:block;margin-bottom:6px;font-size:0.9rem}
+    input[type=text],input[type=number],select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+    .btn{padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:700}
+    .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff}
+    .btn.danger{background:var(--danger);color:#fff}
+
+    /* responsive */
+    @media (max-width:900px){
+      .container{grid-template-columns:1fr;}
+      aside.sidebar{height:auto}
+    }
+
+    footer{padding:14px;text-align:center;color:rgba(255,255,255,0.6)}
+
+    /* small helpers */
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,0.25);font-weight:700}
+    .table-actions button{margin-right:6px}
+
+  </style>
+</head>
+<body>
+  <header>
+    <img src="Logo.jpg" alt="logo">
+    <h1>Berosa2 Maker — Painel Admin</h1>
+
+    <nav class="topnav">
+      <a href="index.html">Voltar ao Hub</a>
+      <a id="btn-export">Exportar JSON</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <aside class="sidebar">
+      <h3>Menu</h3>
+      <div class="menu">
+        <button class="active" data-view="dashboard">Dashboard</button>
+        <button data-view="produtos">Produtos</button>
+        <button data-view="pedidos">Pedidos</button>
+        <button data-view="usuarios">Usuários</button>
+        <button data-view="config">Configurações</button>
+      </div>
+
+      <hr style="margin:14px 0;border:0;border-top:1px solid rgba(255,255,255,0.03)">
+      <div style="font-size:0.9rem;color:rgba(255,255,255,0.7)">
+        <p><strong>Usuário:</strong> Admin</p>
+        <p><strong>Ambiente:</strong> Produção</p>
+      </div>
+    </aside>
+
+    <main class="board">
+      <!-- Dashboard view -->
+      <section id="view-dashboard" class="view">
+        <div class="grid">
+          <div class="card">
+            <h4>Vendas (30d)</h4>
+            <div class="kpi" id="kpi-sales">R$ 0,00</div>
+            <p class="muted">Total de receita gerada nos últimos 30 dias</p>
+          </div>
+          <div class="card">
+            <h4>Pedidos</h4>
+            <div class="kpi" id="kpi-orders">0</div>
+            <p class="muted">Pedidos pendentes / concluídos</p>
+          </div>
+          <div class="card">
+            <h4>Produtos</h4>
+            <div class="kpi" id="kpi-products">0</div>
+            <p class="muted">Produtos cadastrados</p>
+          </div>
+          <div class="card">
+            <h4>Usuários</h4>
+            <div class="kpi" id="kpi-users">0</div>
+            <p class="muted">Contas registradas</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>Últimos Pedidos</h4>
+          <div style="overflow:auto">
+            <table>
+              <thead>
+                <tr><th>Pedido</th><th>Cliente</th><th>Valor</th><th>Status</th><th></th></tr>
+              </thead>
+              <tbody id="orders-tbody">
+                <tr><td colspan="5" class="muted">Nenhum pedido encontrado</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Produtos view -->
+      <section id="view-produtos" class="view" style="display:none">
+        <div style="display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <h3>Produtos</h3>
+          <div>
+            <button class="btn ghost" id="btn-new-product">+ Novo produto</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="overflow:auto">
+            <table>
+              <thead>
+                <tr><th>Nome</th><th>Preço</th><th>Estoque</th><th>Tags</th><th></th></tr>
+              </thead>
+              <tbody id="products-tbody">
+                <tr><td colspan="5" class="muted">Nenhum produto cadastrado</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" id="product-form-card" style="margin-top:12px;display:none">
+          <h4 id="product-form-title">Adicionar produto</h4>
+          <div>
+            <label>Nome</label>
+            <input type="text" id="p-name" placeholder="Ex: Impressão Pequena">
+            <div class="row" style="margin-top:8px">
+              <div>
+                <label>Preço (R$)</label>
+                <input type="number" id="p-price" step="0.01" placeholder="20.00">
+              </div>
+              <div>
+                <label>Estoque</label>
+                <input type="number" id="p-stock" value="1">
+              </div>
+            </div>
+            <label style="margin-top:8px">Tags (vírgula separadas)</label>
+            <input type="text" id="p-tags" placeholder="3d,personalizado">
+            <label style="margin-top:8px">Imagem (URL)</label>
+            <input type="text" id="p-img" placeholder="box.png">
+
+            <div class="actions">
+              <button class="btn ghost" id="btn-cancel-product">Cancelar</button>
+              <button class="btn primary" id="btn-save-product">Salvar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pedidos view -->
+      <section id="view-pedidos" class="view" style="display:none">
+        <h3>Pedidos</h3>
+        <div class="card">
+          <table>
+            <thead><tr><th>#</th><th>Cliente</th><th>Itens</th><th>Total</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="pedidos-tbody"><tr><td colspan="6" class="muted">Nenhum pedido registrado</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Usuários view -->
+      <section id="view-usuarios" class="view" style="display:none">
+        <div style="display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <h3>Usuários</h3>
+          <div>
+            <button class="btn ghost" id="btn-new-user">+ Novo usuário</button>
+          </div>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Nome</th><th>Email</th><th>Tipo</th><th>Ações</th></tr></thead>
+            <tbody id="users-tbody"><tr><td colspan="4" class="muted">Nenhum usuário</td></tr></tbody>
+          </table>
+        </div>
+
+        <div class="card" id="user-form-card" style="margin-top:12px;display:none">
+          <h4 id="user-form-title">Adicionar usuário</h4>
+          <div>
+            <label>Nome</label>
+            <input type="text" id="u-name" placeholder="Nome do usuário">
+            <label>Email</label>
+            <input type="text" id="u-email" placeholder="usuario@email.com">
+            <label>Tipo</label>
+            <select id="u-role">
+              <option value="cliente">Cliente</option>
+              <option value="admin">Admin</option>
+            </select>
+
+            <div class="actions">
+              <button class="btn ghost" id="btn-cancel-user">Cancelar</button>
+              <button class="btn primary" id="btn-save-user">Salvar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Configurações view -->
+      <section id="view-config" class="view" style="display:none">
+        <h3>Configurações</h3>
+        <div class="card">
+          <label>Nome da Loja</label>
+          <input type="text" id="cfg-store-name" value="Berosa2 Maker">
+
+          <div class="actions">
+            <button class="btn ghost" id="btn-reset-sample">Resetar amostras</button>
+            <button class="btn primary" id="btn-save-config">Salvar Config</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>Painel Admin — Berosa2 Maker · Desenvolvido para editar produtos e pedidos localmente</footer>
+
+  <script>
+    const DB_KEYS = { PRODUCTS: 'berosa_products', ORDERS: 'berosa_orders', USERS: 'berosa_users', CFG:'berosa_cfg' };
+    function dbGet(key){return JSON.parse(localStorage.getItem(key) || 'null')}
+    function dbSet(key, val){localStorage.setItem(key, JSON.stringify(val))}
+
+    function ensureSamples(){
+      if(!dbGet(DB_KEYS.PRODUCTS)){
+        dbSet(DB_KEYS.PRODUCTS,[{id:1,name:'Impressão Pequena',price:20,stock:10,tags:['3d'],img:'pequeno.jpg'}]);
+      }
+      if(!dbGet(DB_KEYS.USERS)){
+        dbSet(DB_KEYS.USERS,[{name:'Cliente Teste',email:'cliente@ex.com',role:'cliente'}]);
+      }
+      if(!dbGet(DB_KEYS.ORDERS)) dbSet(DB_KEYS.ORDERS,[]);
+      if(!dbGet(DB_KEYS.CFG)) dbSet(DB_KEYS.CFG,{storeName:'Berosa2 Maker'});
+    }
+
+    document.querySelectorAll('.menu button').forEach(btn=>btn.addEventListener('click',()=>{
+      document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      showView(btn.dataset.view);
+    }));
+
+    function showView(name){
+      document.querySelectorAll('main .view').forEach(s=>s.style.display='none');
+      const el=document.getElementById('view-'+name);if(el) el.style.display='block';
+      refreshAll();
+    }
+
+    function renderProducts(){const tbody=document.getElementById('products-tbody');const products=dbGet(DB_KEYS.PRODUCTS)||[];if(products.length===0){tbody.innerHTML='<tr><td colspan="5" class="muted">Nenhum produto cadastrado</td></tr>';return}tbody.innerHTML='';products.forEach((p,idx)=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${p.name}</td><td>R$ ${p.price.toFixed(2)}</td><td>${p.stock}</td><td>${(p.tags||[]).join(', ')}</td><td><button class="btn ghost" data-idx="${idx}" data-action="edit">Editar</button><button class="btn danger" data-idx="${idx}" data-action="del">Deletar</button></td>`;tbody.appendChild(tr)});}
+
+    function renderOrders(){const tbody=document.getElementById('pedidos-tbody');const orders=dbGet(DB_KEYS.ORDERS)||[];if(orders.length===0){tbody.innerHTML='<tr><td colspan="6" class="muted">Nenhum pedido registrado</td></tr>';return}tbody.innerHTML='';orders.forEach((o,idx)=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${idx+1}</td><td>${o.cliente}</td><td>${(o.itens||[]).length}</td><td>R$ ${o.total.toFixed(2)}</td><td>${o.status}</td><td><button class="btn ghost">Ver
+</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ----- Usuários -----
+    function renderUsers(){
+      const tbody = document.getElementById('users-tbody');
+      const users = dbGet(DB_KEYS.USERS) || [];
+      if(users.length===0){
+        tbody.innerHTML = '<tr><td colspan="4" class="muted">Nenhum usuário</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      users.forEach((u,idx)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${u.name}</td><td>${u.email}</td><td>${u.role}</td>
+        <td>
+          <button class="btn ghost" data-idx="${idx}" data-action="edit">Editar</button>
+          <button class="btn danger" data-idx="${idx}" data-action="del">Deletar</button>
+        </td>`;
+        tbody.appendChild(tr);
+      });
+
+      // ações editar/deletar
+      tbody.querySelectorAll('button').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const idx = Number(btn.dataset.idx);
+          if(btn.dataset.action==='edit') openUserForm(idx);
+          if(btn.dataset.action==='del') deleteUser(idx);
+        });
+      });
+    }
+
+    // ----- Form Usuários -----
+    let editingUserIndex = null;
+    document.getElementById('btn-new-user').addEventListener('click',()=>openUserForm());
+    document.getElementById('btn-cancel-user').addEventListener('click',()=>closeUserForm());
+    document.getElementById('btn-save-user').addEventListener('click',saveUser);
+
+    function openUserForm(idx){
+      editingUserIndex = (typeof idx==='number') ? idx : null;
+      const card = document.getElementById('user-form-card');
+      card.style.display = 'block';
+
+      if(editingUserIndex!==null){
+        const u = dbGet(DB_KEYS.USERS)[editingUserIndex];
+        document.getElementById('user-form-title').innerText = 'Editar usuário';
+        document.getElementById('u-name').value = u.name;
+        document.getElementById('u-email').value = u.email;
+        document.getElementById('u-role').value = u.role;
+      } else {
+        document.getElementById('user-form-title').innerText = 'Adicionar usuário';
+        document.getElementById('u-name').value = '';
+        document.getElementById('u-email').value = '';
+        document.getElementById('u-role').value = 'cliente';
+      }
+    }
+
+    function closeUserForm(){
+      document.getElementById('user-form-card').style.display='none';
+      editingUserIndex = null;
+    }
+
+    function saveUser(){
+      const name = document.getElementById('u-name').value.trim();
+      const email = document.getElementById('u-email').value.trim();
+      const role = document.getElementById('u-role').value;
+
+      if(!name || !email){alert('Preencha nome e email');return;}
+
+      const users = dbGet(DB_KEYS.USERS) || [];
+      if(editingUserIndex!==null){
+        users[editingUserIndex] = {name,email,role};
+      } else {
+        users.push({name,email,role});
+      }
+      dbSet(DB_KEYS.USERS, users);
+      closeUserForm();
+      renderUsers();
+      refreshKpis();
+    }
+
+    function deleteUser(idx){
+      const users = dbGet(DB_KEYS.USERS) || [];
+      if(!confirm('Remover usuário '+users[idx].name+'?')) return;
+      users.splice(idx,1);
+      dbSet(DB_KEYS.USERS, users);
+      renderUsers();
+      refreshKpis();
+    }
+
+    // ----- KPIs -----
+    function refreshKpis(){
+      const products = dbGet(DB_KEYS.PRODUCTS)||[];
+      const orders = dbGet(DB_KEYS.ORDERS)||[];
+      const users = dbGet(DB_KEYS.USERS)||[];
+
+      const totalSales = orders.reduce((s,o)=>s+(Number(o.total)||0),0);
+      document.getElementById('kpi-sales').innerText = 'R$ '+totalSales.toFixed(2);
+      document.getElementById('kpi-orders').innerText = orders.length;
+      document.getElementById('kpi-products').innerText = products.length;
+      document.getElementById('kpi-users').innerText = users.length;
+    }
+
+    function refreshAll(){
+      renderProducts();
+      renderOrders();
+      renderUsers();
+      refreshKpis();
+    }
+
+    // ----- Configs -----
+    document.getElementById('btn-reset-sample').addEventListener('click',()=>{
+      if(confirm('Resetar dados amostra?')){
+        localStorage.clear();
+        ensureSamples();
+        refreshAll();
+        alert('Amostras restauradas');
+      }
+    });
+    document.getElementById('btn-save-config').addEventListener('click',()=>{
+      const cfg={storeName:document.getElementById('cfg-store-name').value};
+      dbSet(DB_KEYS.CFG,cfg);
+      alert('Configurações salvas');
+    });
+
+    // ----- Export JSON -----
+    document.getElementById('btn-export').addEventListener('click',()=>{
+      const payload = {
+        products:dbGet(DB_KEYS.PRODUCTS)||[],
+        orders:dbGet(DB_KEYS.ORDERS)||[],
+        users:dbGet(DB_KEYS.USERS)||[],
+        cfg:dbGet(DB_KEYS.CFG)||{}
+      };
+      const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');a.href=url;a.download='berosa_export.json';a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // ----- Init -----
+    ensureSamples();
+    showView('dashboard');
+  </script>
+</body>
+</html>

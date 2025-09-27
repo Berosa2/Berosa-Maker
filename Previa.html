@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Prévia de Compras</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; color: #333; }
+    h1 { text-align: center; color: #1abc9c; }
+    .card { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 20px auto; max-width: 800px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+    th { background: #eee; }
+    .total { text-align: right; font-size: 1.2rem; font-weight: bold; margin-top: 15px; }
+    .upload, .cupom { text-align: center; margin: 20px 0; }
+    input[type=file], input[type=text] { padding: 8px; }
+    button { padding: 8px 14px; margin-left: 8px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    button.apply { background: #1abc9c; color: #fff; }
+  </style>
+</head>
+<body>
+  <h1>📦 Prévia do Carrinho</h1>
+
+  <div class="upload">
+    <p>Selecione o arquivo <strong>carrinho_export.json</strong> exportado:</p>
+    <input type="file" id="fileInput" accept=".json">
+  </div>
+
+  <div class="card" id="preview" style="display:none;">
+    <h2>Itens</h2>
+    <table>
+      <thead>
+        <tr><th>Produto</th><th>Quantidade</th><th>Preço Unitário</th><th>Subtotal</th></tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+
+    <div class="cupom">
+      <p>Aplicar cupom de desconto:</p>
+      <input type="text" id="input-cupom" placeholder="Digite o cupom">
+      <button class="apply" id="btn-aplicar">Aplicar</button>
+      <p id="cupom-msg" style="color:#e74c3c;font-weight:bold;"></p>
+    </div>
+
+    <div class="total" id="total"></div>
+  </div>
+
+  <script>
+    let totalOriginal = 0;
+    let descontoExtra = 0; // % de desconto de cupom
+    let descontoSabado = false;
+    let listaCupons = [];
+
+    // carrega o arquivo de descontos automaticamente
+    fetch("Desconto.json")
+      .then(r => r.json())
+      .then(json => { listaCupons = json; })
+      .catch(()=> console.warn("Não foi possível carregar Desconto.json"));
+
+    function calcularTotal(total) {
+      let final = total;
+      let msg = "";
+
+      // desconto sábado
+      if (descontoSabado) {
+        final *= 0.8;
+        msg += "Desconto de 20% (sábado) aplicado. ";
+      }
+
+      // desconto cupom
+      if (descontoExtra > 0) {
+        final *= (1 - descontoExtra);
+        msg += `Cupom aplicado: ${descontoExtra * 100}% OFF.`;
+      }
+
+      document.getElementById('total').textContent =
+        'Total Geral: R$ ' + final.toFixed(2) + (msg ? ` — ${msg}` : '');
+    }
+
+    document.getElementById('fileInput').addEventListener('change', function(evt){
+      const file = evt.target.files[0];
+      if(!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e){
+        try {
+          const data = JSON.parse(e.target.result);
+
+          const tbody = document.getElementById('tbody');
+          tbody.innerHTML = '';
+          totalOriginal = 0;
+
+          (data.itens || []).forEach(item=>{
+            const qtd = item.qtd || 1;
+            const preco = item.preco || 0;
+            const subtotal = qtd * preco;
+            totalOriginal += subtotal;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${item.nome || item.name}</td>
+                            <td>${qtd}</td>
+                            <td>R$ ${preco.toFixed(2)}</td>
+                            <td>R$ ${subtotal.toFixed(2)}</td>`;
+            tbody.appendChild(tr);
+          });
+
+          // verifica se é sábado
+          const hoje = new Date();
+          descontoSabado = (hoje.getDay() === 6); // 6 = sábado
+          calcularTotal(totalOriginal);
+
+          document.getElementById('preview').style.display = 'block';
+        } catch(err){
+          alert('Arquivo inválido!');
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // aplicar cupom
+    document.getElementById('btn-aplicar').addEventListener('click', ()=>{
+      const codigo = document.getElementById('input-cupom').value.trim().toUpperCase();
+      if(!codigo){ alert('Digite um cupom'); return; }
+
+      const cupom = listaCupons.find(c=>c.codigo.toUpperCase()===codigo);
+
+      if(cupom){
+        descontoExtra = cupom.desconto;
+        document.getElementById('cupom-msg').textContent = "Cupom válido! Desconto aplicado.";
+        calcularTotal(totalOriginal);
+      } else {
+        document.getElementById('cupom-msg').textContent = "Cupom inválido!";
+      }
+    });
+  </script>
+</body>
+</html>

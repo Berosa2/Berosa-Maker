@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>BEROSA MAKER - Design Personalizado</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #1abc9c, #0b1540);
+      color: white;
+      text-align: center;
+    }
+    header {
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.4);
+    }
+    h1 {
+      margin: 0;
+      font-size: 2.5em;
+    }
+    .produtos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 30px;
+    }
+    .produto {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 15px;
+      transition: transform 0.2s;
+    }
+    .produto:hover {
+      transform: scale(1.05);
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .produto img {
+      width: 100%;
+      max-height: 180px;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+    .btn {
+      margin-top: 10px;
+      padding: 10px 15px;
+      background: linear-gradient(45deg, #ff9800, #ff5722);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn:hover {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+    .voltar-hub {
+      display: inline-block;
+      margin: 15px auto;
+      padding: 10px 20px;
+      background: linear-gradient(45deg, #1abc9c, #0b1540);
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .voltar-hub:hover {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+    .highlight {
+      border: 3px solid yellow;
+      box-shadow: 0 0 20px yellow;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎨 Design Personalizado</h1>
+    <p>Monte seu produto único! (Modelos em <a href="https://www.pacdora.com" target="_blank" style="color: #ffd700;">Pacdora</a>)</p>
+    <a href="index.html" class="voltar-hub">⬅ Voltar ao Hub</a>
+  </header>
+
+  <main class="produtos">
+    <div class="produto" id="produto-caixa">
+      <img src="img/Box.png" alt="Caixa Personalizada">
+      <h3>📦 Caixa Personalizada</h3>
+      <p>Monte embalagens sob medida.</p>
+      <button class="btn" onclick="adicionarCarrinho('Caixa Personalizada')">Adicionar ao Carrinho</button>
+    </div>
+    <div class="produto" id="produto-camisa">
+      <img src="img/Ops, não temos demonstrações.png" alt="Camisa Personalizada">
+      <h3>👕 Camisa Estampada</h3>
+      <p>Personalize com sua arte.</p>
+      <button class="btn" onclick="adicionarCarrinho('Camisa Estampada')">Adicionar ao Carrinho</button>
+    </div>
+    <div class="produto" id="produto-telefone">
+      <img src="img/Ops, não temos demonstrações.png" alt="Capa de Telefone">
+      <h3>📱 Capa de Telefone</h3>
+      <p>Proteja e estilize seu celular.</p>
+      <button class="btn" onclick="adicionarCarrinho('Capa de Telefone')">Adicionar ao Carrinho</button>
+    </div>
+    <div class="produto" id="produto-pote">
+      <img src="img/garrafa.png" alt="Pote Decorado">
+      <h3>🥤 Pote Decorado</h3>
+      <p>Armazene com estilo.</p>
+      <button class="btn" onclick="adicionarCarrinho('Pote Decorado')">Adicionar ao Carrinho</button>
+    </div>
+    <div class="produto" id="produto-outro">
+      <img src="img/Ops, não temos demonstrações.png" alt="Produto Personalizado">
+      <h3>✨ Produto Único</h3>
+      <p>Crie algo totalmente exclusivo.</p>
+      <button class="btn" onclick="adicionarCarrinho('Produto Único')">Adicionar ao Carrinho</button>
+    </div>
+  </main>
+
+  <script>
+    function adicionarCarrinho(item) {
+      let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+      carrinho.push(item);
+      localStorage.setItem("carrinho", JSON.stringify(carrinho));
+      alert(item + " foi adicionado ao carrinho!");
+    }
+
+    // Se vier com ?item=Camisa Estampada -> destaca o produto
+    window.onload = function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const item = urlParams.get('item');
+      if (item) {
+        document.querySelectorAll(".produto").forEach(produto => {
+          if (produto.innerText.includes(item)) {
+            produto.classList.add("highlight");
+            produto.scrollIntoView({behavior: "smooth", block: "center"});
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>

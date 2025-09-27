@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>BEROSA MAKER - Carrinho</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0f0f0;
+      color: #333;
+    }
+    header {
+      padding: 20px;
+      background: #444;
+      color: white;
+      text-align: center;
+    }
+    h1 { margin: 0; }
+    header p { margin: 5px 0 15px; }
+    .voltar-hub {
+      display: inline-block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      background: #1abc9c;
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .voltar-hub:hover { background: #16a085; }
+
+    main { max-width: 700px; margin: 20px auto; padding: 0 15px; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px;
+      margin: 10px 0;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+    li:hover { transform: scale(1.01); background: #fafafa; }
+    .item-info { display: flex; flex-direction: column; text-align: left; cursor: pointer; }
+    .item-info strong { font-size: 1.05rem; }
+    .item-info small { color: #666; }
+
+    .delete-btn {
+      background: #ff4d4d;
+      border: none;
+      color: white;
+      font-weight: bold;
+      padding: 6px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .delete-btn:hover { background: #cc0000; }
+
+    .total-card {
+      margin-top: 20px;
+      padding: 15px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      text-align: right;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .actions {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn.primary { background: #1abc9c; color: #fff; }
+    .btn.ghost { background: transparent; border: 1px solid #1abc9c; color: #1abc9c; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛒 Seu Carrinho</h1>
+    <p id="cart-status">0 itens — Total R$ 0,00</p>
+    <a href="index.html" class="voltar-hub">⬅ Voltar ao Hub</a>
+  </header>
+
+  <main>
+    <ul id="lista-carrinho">
+      <li>Ops, seu carrinho está vazio!</li>
+    </ul>
+
+    <div class="total-card" id="total-card" style="display:none;">
+      Total Geral: <span id="valor-total">R$ 0,00</span>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="btn-finalizar">Finalizar Compra</button>
+      <button class="btn ghost" id="btn-export">Exportar Compras</button>
+    </div>
+  </main>
+
+  <script>
+    function carregarCarrinho() {
+      const lista = document.getElementById("lista-carrinho");
+      const totalCard = document.getElementById("total-card");
+      const valorTotalSpan = document.getElementById("valor-total");
+      const status = document.getElementById("cart-status");
+
+      lista.innerHTML = "";
+      const carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+
+      if (carrinho.length === 0) {
+        lista.innerHTML = "<li>Ops, seu carrinho está vazio!</li>";
+        totalCard.style.display = "none";
+        status.textContent = "0 itens — Total R$ 0,00";
+        return;
+      }
+
+      let totalGeral = 0;
+      carrinho.forEach((item, index) => {
+        const li = document.createElement("li");
+
+        // info do produto
+        const info = document.createElement("div");
+        info.className = "item-info";
+        info.onclick = () => {
+          window.location.href = "desing.html?item=" + encodeURIComponent(item.nome || item);
+        };
+        const nome = document.createElement("strong");
+        nome.textContent = item.nome || item;
+        const preco = document.createElement("small");
+        const qtd = item.qtd || 1;
+        const precoUnit = item.preco || 0;
+        const subtotal = qtd * precoUnit;
+        preco.textContent = `Qtd: ${qtd} — R$ ${precoUnit.toFixed(2)} cada — Subtotal R$ ${subtotal.toFixed(2)}`;
+
+        totalGeral += subtotal;
+
+        info.appendChild(nome);
+        info.appendChild(preco);
+
+        // Botão deletar
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "❌";
+        deleteBtn.className = "delete-btn";
+        deleteBtn.onclick = (e) => {
+          e.stopPropagation();
+          carrinho.splice(index, 1);
+          localStorage.setItem("carrinho", JSON.stringify(carrinho));
+          carregarCarrinho();
+        };
+
+        li.appendChild(info);
+        li.appendChild(deleteBtn);
+        lista.appendChild(li);
+      });
+
+      // Atualiza total
+      totalCard.style.display = "block";
+      valorTotalSpan.textContent = "R$ " + totalGeral.toFixed(2);
+      status.textContent = `${carrinho.length} itens — Total R$ ${totalGeral.toFixed(2)}`;
+    }
+
+    // Exportar JSON
+    document.getElementById("btn-export").addEventListener("click", () => {
+      const carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+      if (carrinho.length === 0) { alert("Carrinho vazio"); return; }
+      const total = carrinho.reduce((s,i)=> s + (i.qtd||1)*(i.preco||0),0);
+      const payload = { data:new Date().toISOString(), itens:carrinho, totalGeral:total };
+      const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "carrinho_export.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Finalizar compra
+    document.getElementById("btn-finalizar").addEventListener("click",()=>{
+      alert("Compra finalizada! (simulação)");
+      localStorage.removeItem("carrinho");
+      carregarCarrinho();
+    });
+
+    window.onload = carregarCarrinho;
+  </script>
+</body>
+</html>

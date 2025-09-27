@@ -1,0 +1,4 @@
+[
+  { "codigo": "PROMO10", "desconto": 0.10 },
+  { "codigo": "VIP20", "desconto": 0.20 }
+]

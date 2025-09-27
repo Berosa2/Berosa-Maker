@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contatos</title>
+<style>
+    /* Reset básico */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #1abc9c, #0b1540);
+        color: #fff;
+        text-align: center;
+        min-height: 100vh;
+    }
+
+    header {
+        padding: 40px 20px 20px;
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(5px);
+        border-bottom: 2px solid rgba(255,255,255,0.2);
+    }
+
+    header h1 {
+        font-size: 3em;
+        letter-spacing: 2px;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+
+    .Emails {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 20px;
+        gap: 30px;
+    }
+
+    .produto {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 25px;
+        border-radius: 20px;
+        transition: transform 0.3s, background 0.3s;
+        width: 280px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .produto:hover {
+        transform: scale(1.08);
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    .produto img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 50%;
+        margin-bottom: 15px;
+        border: 3px solid #fff;
+    }
+
+    .produto a {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(45deg, #ff9800, #ff5722);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 0.9em; /* reduz o tamanho do texto */
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+
+    .produto a:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+
+    .voltar-hub {
+        display: inline-block;
+        margin: 30px auto;
+        padding: 12px 25px;
+        background: linear-gradient(45deg, #1abc9c, #0b1540);
+        color: white;
+        font-weight: bold;
+        text-decoration: none;
+        border-radius: 12px;
+        transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .voltar-hub:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Contatos</h1>
+</header>
+
+<div class="Emails">
+    <div class="produto">
+        <img src="img/download.png" alt="Email">
+        <a href="mailto:berosa.maker@consultant.com">berosa.maker@consultant.com</a>
+        <a href="mailto:Berosa.Maker@proton.me">Berosa.Maker@proton.me</a>
+    </div>
+</div>
+
+<a href="index.html" class="voltar-hub">Voltar para o Hub</a>
+
+</body>
+</html>
